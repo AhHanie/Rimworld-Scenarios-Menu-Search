@@ -2,4 +2,9 @@
 <LanguageData>
     <ScenariosMenuSearch.LoadingLabel>Scenarios Menu Search Loading</ScenariosMenuSearch.LoadingLabel>
     <ScenariosMenuSearch.SettingsTitle>Scenarios Menu Search</ScenariosMenuSearch.SettingsTitle>
+    <ScenariosMenuSearch.Source>Source</ScenariosMenuSearch.Source>
+    <ScenariosMenuSearch.AllSources>All sources</ScenariosMenuSearch.AllSources>
+    <ScenariosMenuSearch.LocalSource>Local scenarios</ScenariosMenuSearch.LocalSource>
+    <ScenariosMenuSearch.WorkshopSource>Workshop scenarios</ScenariosMenuSearch.WorkshopSource>
+    <ScenariosMenuSearch.UnknownSource>Unknown source</ScenariosMenuSearch.UnknownSource>
 </LanguageData>
