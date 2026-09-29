@@ -1,4 +1,5 @@
 using HarmonyLib;
+using UnityEngine;
 using Verse;
 
 namespace Scenarios_Menu_Search
@@ -12,7 +13,19 @@ namespace Scenarios_Menu_Search
 
         private void Init()
         {
+            GetSettings<ScenariosMenuSearchSettings>();
             new Harmony("sk.scenariosearch").PatchAll();
+        }
+
+        public override string SettingsCategory()
+        {
+            return "ScenariosMenuSearch.SettingsTitle".Translate();
+        }
+
+        public override void DoSettingsWindowContents(Rect inRect)
+        {
+            ModSettingsWindow.Draw(inRect);
+            base.DoSettingsWindowContents(inRect);
         }
     }
 }

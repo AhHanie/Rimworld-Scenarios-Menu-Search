@@ -7,4 +7,6 @@
     <ScenariosMenuSearch.LocalSource>Local scenarios</ScenariosMenuSearch.LocalSource>
     <ScenariosMenuSearch.WorkshopSource>Workshop scenarios</ScenariosMenuSearch.WorkshopSource>
     <ScenariosMenuSearch.UnknownSource>Unknown source</ScenariosMenuSearch.UnknownSource>
+    <ScenariosMenuSearch.Settings.ShowSourcesButton>Show sources button</ScenariosMenuSearch.Settings.ShowSourcesButton>
+    <ScenariosMenuSearch.Settings.ShowSourcesButtonDesc>Show the source filter above the scenario search field. When hidden, scenarios from all sources are shown.</ScenariosMenuSearch.Settings.ShowSourcesButtonDesc>
 </LanguageData>

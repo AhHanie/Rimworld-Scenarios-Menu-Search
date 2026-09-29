@@ -72,6 +72,8 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Patches\Page_SelectScenarioPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\ScenariosMenuSearchSettings.cs" />
+    <Compile Include="Settings\ModSettingsWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

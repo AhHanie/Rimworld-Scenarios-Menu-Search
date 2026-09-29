@@ -30,6 +30,7 @@ namespace Scenarios_Menu_Search.Patches
         public readonly QuickSearchWidget Search = new QuickSearchWidget();
         public ScenarioSourceKind SourceKind = ScenarioSourceKind.All;
         public string SourceModPackageId;
+        public bool? LastShowSourcesButton;
     }
 
     [HarmonyPatch(typeof(Page_SelectScenario), nameof(Page_SelectScenario.DoScenarioSelectionList))]
@@ -42,41 +43,75 @@ namespace Scenarios_Menu_Search.Patches
             ScenarioSearchState state = States.GetValue(__instance, _ => new ScenarioSearchState());
             QuickSearchWidget search = state.Search;
 
-            Dictionary<Scenario, ScenarioDef> defLookup = BuildScenarioDefLookup();
-            List<ScenarioModSourceChoice> modChoices = BuildModChoices(defLookup);
-            bool hasUnknownSource = HasUnknownSource(defLookup);
+            bool showSourcesButton = ScenariosMenuSearchSettings.showSourcesButton;
 
-            if (state.SourceKind == ScenarioSourceKind.Mod && !modChoices.Any(choice => choice.PackageId == state.SourceModPackageId))
+            if (state.LastShowSourcesButton.HasValue && state.LastShowSourcesButton.Value != showSourcesButton)
             {
+                __instance.scenariosScrollPosition = Vector2.zero;
+            }
+            state.LastShowSourcesButton = showSourcesButton;
+
+            if (!showSourcesButton)
+            {
+                if (state.SourceKind != ScenarioSourceKind.All || state.SourceModPackageId != null)
+                {
+                    __instance.scenariosScrollPosition = Vector2.zero;
+                }
                 state.SourceKind = ScenarioSourceKind.All;
                 state.SourceModPackageId = null;
             }
-            else if (state.SourceKind == ScenarioSourceKind.Unknown && !hasUnknownSource)
+
+            Dictionary<Scenario, ScenarioDef> defLookup = null;
+            List<ScenarioModSourceChoice> modChoices = null;
+            bool hasUnknownSource = false;
+
+            if (showSourcesButton)
             {
-                state.SourceKind = ScenarioSourceKind.All;
+                defLookup = BuildScenarioDefLookup();
+                modChoices = BuildModChoices(defLookup);
+                hasUnknownSource = HasUnknownSource(defLookup);
+
+                if (state.SourceKind == ScenarioSourceKind.Mod && !modChoices.Any(choice => choice.PackageId == state.SourceModPackageId))
+                {
+                    state.SourceKind = ScenarioSourceKind.All;
+                    state.SourceModPackageId = null;
+                }
+                else if (state.SourceKind == ScenarioSourceKind.Unknown && !hasUnknownSource)
+                {
+                    state.SourceKind = ScenarioSourceKind.All;
+                }
             }
 
-            Rect sourceRect = rect;
-            sourceRect.height = QuickSearchWidget.WidgetHeight;
-
             Rect searchRect = rect;
-            searchRect.y = sourceRect.yMax + 4f;
             searchRect.height = QuickSearchWidget.WidgetHeight;
+
+            if (showSourcesButton)
+            {
+                Rect sourceRect = rect;
+                sourceRect.height = QuickSearchWidget.WidgetHeight;
+                searchRect.y = sourceRect.yMax + 4f;
+
+                DrawSourceDropdown(sourceRect, state, modChoices, hasUnknownSource, delegate
+                {
+                    __instance.scenariosScrollPosition = Vector2.zero;
+                });
+            }
 
             Rect listRect = rect;
             listRect.yMin = searchRect.yMax + 4f;
 
-            DrawSourceDropdown(sourceRect, state, modChoices, hasUnknownSource, delegate
-            {
-                __instance.scenariosScrollPosition = Vector2.zero;
-            });
+            bool includeFromDef = !showSourcesButton || state.SourceKind == ScenarioSourceKind.All || state.SourceKind == ScenarioSourceKind.Mod || state.SourceKind == ScenarioSourceKind.Unknown;
+            bool includeLocal = !showSourcesButton || state.SourceKind == ScenarioSourceKind.All || state.SourceKind == ScenarioSourceKind.Local;
+            bool includeWorkshop = !showSourcesButton || state.SourceKind == ScenarioSourceKind.All || state.SourceKind == ScenarioSourceKind.Workshop;
 
-            bool includeFromDef = state.SourceKind == ScenarioSourceKind.All || state.SourceKind == ScenarioSourceKind.Mod || state.SourceKind == ScenarioSourceKind.Unknown;
-            bool includeLocal = state.SourceKind == ScenarioSourceKind.All || state.SourceKind == ScenarioSourceKind.Local;
-            bool includeWorkshop = state.SourceKind == ScenarioSourceKind.All || state.SourceKind == ScenarioSourceKind.Workshop;
+            IEnumerable<Scenario> fromDefCandidates = ScenarioLister.ScenariosInCategory(ScenarioCategory.FromDef);
+            if (showSourcesButton)
+            {
+                fromDefCandidates = fromDefCandidates.Where(scenario => MatchesModSource(scenario, state, defLookup));
+            }
 
             List<Scenario> fromDef = includeFromDef
-                ? VisibleScenarios(search, ScenarioLister.ScenariosInCategory(ScenarioCategory.FromDef).Where(scenario => MatchesModSource(scenario, state, defLookup)))
+                ? VisibleScenarios(search, fromDefCandidates)
                 : new List<Scenario>();
             List<Scenario> customLocal = includeLocal
                 ? VisibleScenarios(search, ScenarioLister.ScenariosInCategory(ScenarioCategory.CustomLocal))
