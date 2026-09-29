@@ -269,6 +269,16 @@ namespace Scenarios_Menu_Search.Patches
 
         private static void DrawSourceDropdown(Rect rect, ScenarioSearchState state, List<ScenarioModSourceChoice> modChoices, bool hasUnknownSource, Action onChanged)
         {
+            // Other mods' page title patches (e.g. Progression: Scenarios) can leave a larger font selected,
+            // so the source controls set their own font before measuring and drawing.
+            using (new TextBlock(GameFont.Small))
+            {
+                DrawSourceDropdownContents(rect, state, modChoices, hasUnknownSource, onChanged);
+            }
+        }
+
+        private static void DrawSourceDropdownContents(Rect rect, ScenarioSearchState state, List<ScenarioModSourceChoice> modChoices, bool hasUnknownSource, Action onChanged)
+        {
             Rect labelRect = rect;
             labelRect.width = Mathf.Min(60f, rect.width * 0.3f);
             Rect buttonRect = rect;
